@@ -1,4 +1,4 @@
-const { User, Address } = require("../../models/tables");
+const { User, Address, Pancard } = require("../../models/tables");
 const { errorRequest } = require("../../utils/utils");
 const { createUserValidations } = require("./validation");
 
@@ -16,7 +16,7 @@ async function createUser({ body }, res) {
 async function listUser({ body }, res) {
     try {
         const user = await User.findAll({
-            include: Address
+            include: [Address,Pancard]
         })
         return res.json(user);
     } catch (error) {
