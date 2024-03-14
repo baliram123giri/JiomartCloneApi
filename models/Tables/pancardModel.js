@@ -12,7 +12,7 @@ const Pancard = sequelize.define("Pancard", {
 })
 
 // Pancard.sync({ alter: true })
-User.hasOne(Pancard, { foreignKey: "userId", onDelete: "CASCADE" })
+User.hasOne(Pancard, { foreignKey: "userId", onDelete: "CASCADE", })
 
 
 
