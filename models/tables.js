@@ -8,9 +8,10 @@ const ProductImage = require("./Tables/Products/productImagesModel")
 const ProductDetailHeading = require("./Tables/Products/PorductDetailsHeadingModel")
 const ProductDetailsData = require("./Tables/Products/ProductDetailDataModel")
 const Rating = require("./Tables/ratingsModel")
+const SubChildCategory = require("./Tables/subChildCategoryModel")
 
 //rating model
 Products.hasMany(Rating, { foreignKey: "product_id" })
 User.hasMany(Rating, { foreignKey: "user_id" })
 
-module.exports = { User, Address, Pancard, Category, SubCategory, Products, ProductImage, ProductDetailHeading, ProductDetailsData, Rating }
+module.exports = { User, Address, Pancard, Category, SubCategory, SubChildCategory, Products, ProductImage, ProductDetailHeading, ProductDetailsData, Rating }

@@ -11,6 +11,14 @@ async function pagination(query) {
     const offset = (page - 1) * limit
     return { page, limit, offset, panginationSchema: { ...(query?.page ? { limit, offset } : {}) } }
 }
+async function dateRangeSelection(query) {
+    const rangeSearch = query?.start_date && query?.end_date ? {
+        createdAt: {
+            [Op.between]: [query?.start_date, query?.end_date]
+        }
+    } : {}
+    return { rangeSearch }
+}
 
 async function getColumnsKeys(ModelName, search) {
     if (!search) return []
@@ -26,4 +34,4 @@ async function getColumnsKeys(ModelName, search) {
     return searchConditions
 }
 
-module.exports = { errorRequest, pagination, getColumnsKeys }
+module.exports = { errorRequest, pagination, getColumnsKeys, dateRangeSelection }

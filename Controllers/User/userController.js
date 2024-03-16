@@ -1,9 +1,10 @@
 const { Op } = require("sequelize");
 const { User, Address, Pancard } = require("../../models/tables");
-const { errorRequest, pagination, getColumnsKeys } = require("../../utils/utils");
+const { errorRequest, pagination, getColumnsKeys, dateRangeSelection } = require("../../utils/utils");
 const { createUserValidations, updateUserValidations, loginUserValidations } = require("./validation");
 const { compareSync } = require("bcrypt");
 const { sign } = require("jsonwebtoken");
+const { genarateToken, cookieStore } = require("../../utils/auth");
 
 
 //user crerates
@@ -29,10 +30,10 @@ async function loginUser({ body }, res) {
 
         const data = JSON.parse(JSON.stringify(user))
         data.password = undefined
-        
+
         //create jwt token
-        const token = sign({ id: user.id, role: user.role }, process.env.JWT_KEY, { expiresIn: "24h" })
-        res.cookie("token", token, { maxAge: 24 * 60 * 60 * 1000 })
+        const token = genarateToken({ id: user.id, role: user.role })
+        cookieStore(res, token)
         return res.json(data);
     } catch (error) {
         errorRequest(res, error);
@@ -43,6 +44,8 @@ async function loginUser({ body }, res) {
 async function listUser({ query }, res) {
     try {
         const { limit, page, panginationSchema } = await pagination(query)
+        const { rangeSearch } = await dateRangeSelection(query)
+
         const globalSearch = await getColumnsKeys(User, query?.search)
         const { count, rows: data } = await User.findAndCountAll({
             where: {
@@ -51,7 +54,9 @@ async function listUser({ query }, res) {
                     [Op.or]: [...globalSearch,
                     { '$Pancard.pan_number$': { [Op.like]: `%${query.search}%` } }
                     ]
-                } : {})
+                } : {}),
+                //date range
+                ...rangeSearch
             },
             attributes: { exclude: ["password"] },
             include: [{
@@ -76,6 +81,7 @@ async function listUser({ query }, res) {
         errorRequest(res, error);
     }
 }
+
 //find by userid
 async function findUser({ params: { id } }, res) {
     try {
@@ -97,6 +103,7 @@ async function deleteUser({ params: { id } }, res) {
         errorRequest(res, error);
     }
 }
+
 //update user
 async function updateUser({ params: { id }, body }, res) {
     try {
